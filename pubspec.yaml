@@ -39,8 +39,12 @@ dependencies:
   http: ^0.13.3  # For communicating with the WAMP server
   # flutter_sound: ^9.16.3
   permission_handler: ^10.2.0  # Use the latest version
-  webview_flutter: ^4.10.0
+  # webview_flutter: ^4.10.0
   flutter_inappwebview: ^6.1.5
+  just_audio: ^0.9.31
+  web_socket_channel: ^2.1.0
+  flutter_sound: ^9.0.0
+
   # video_player: ^2.4.0
   # flutter_mjpeg: ^2.0.4
   # chewie: ^1.2.3
@@ -51,13 +55,14 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
+  flutter_launcher_icons: "^0.14.1"
+  rename_app: ^1.6.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -100,3 +105,7 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+flutter_launcher_icons:
+  android: "launcher_icon"
+  image_path: "assets/icon/icon.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
