@@ -43,8 +43,8 @@ class _HomePageState extends State<HomePage> {
   Future<void> _loadIpAddresses() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _streamIp = prefs.getString('device_1_ip_port');
-      _micIp = prefs.getString('device_2_ip_port');
+      _streamIp = prefs.getString('camera_ip');
+      _micIp = prefs.getString('microphone_ip');
     });
   }
 

@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 import 'notificationpage.dart';
 import 'devicespage.dart';
 import 'homepage.dart';
+ 
 
-void main() {
+void main()async {
+  WidgetsFlutterBinding.ensureInitialized();
+    // late PusherChannelsFlutter Pusher;
+ 
   runApp(MyApp());
 }
 
