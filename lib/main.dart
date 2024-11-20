@@ -3,10 +3,10 @@ import 'package:pusher_channels_flutter/pusher_channels_flutter.dart'; // Import
 import 'notificationpage.dart';
 import 'devicespage.dart';
 import 'homepage.dart';
-import 'test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'; // Import Flutter Local Notifications
 import 'package:permission_handler/permission_handler.dart';
+import 'dart:convert';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -76,8 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
     HomePage(),
     const DevicesPage(),
     NotificationPage(),
-    Test(),
-  ];
+   ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -93,8 +92,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: SafeArea(child: _widgetOptions[_selectedIndex]),
       bottomNavigationBar: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-         items: const <BottomNavigationBarItem>[
+        type: BottomNavigationBarType.fixed,
+        items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
@@ -107,10 +106,11 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: Icon(Icons.notifications),
             label: 'Notifications',
           ),
-           BottomNavigationBarItem(
-            icon: Icon(Icons.accessible_rounded),
-            label: 'Test',
-          ),
+ 
+          //  BottomNavigationBarItem(
+          //   icon: Icon(Icons.accessible_rounded),
+          //   label: 'Test',
+          // ),
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
@@ -167,10 +167,22 @@ Future<void> onConnectPressed(SharedPreferences prefs) async {
 
 void storeNotification(PusherEvent event, SharedPreferences prefs) {
   List<String> notifications = prefs.getStringList('notifications') ?? [];
-  String notificationMessage = event.data.toString(); // Save event data
-  notifications.add(notificationMessage);
-  prefs.setStringList('notifications',
-      notifications); // Store the notifications list in SharedPreferences
+  
+  // Get the current timestamp
+  String timestamp = DateTime.now().toIso8601String(); // ISO 8601 format
+  
+  // Create a map with event data and timestamp
+  Map<String, String> notificationData = {
+    'data': event.data.toString(),
+    'timestamp': timestamp,
+  };
+  
+  // Convert the map to a JSON string
+  String notificationMessage = jsonEncode(notificationData);
+  
+  notifications.add(notificationMessage); // Add the new notification to the list
+  
+  prefs.setStringList('notifications', notifications); // Store the updated list
 }
 
 // Function to trigger a local notification

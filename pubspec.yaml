@@ -45,8 +45,10 @@ dependencies:
   flutter_native_splash: ^2.4.2
   pusher_channels_flutter: ^2.3.0
   flutter_local_notifications: ^18.0.1
-  flutter_sound: ^9.0.0
+  # flutter_sound: ^9.0.0
   path_provider: ^2.1.5
+  record: ^5.0.4
+  vibration: ^1.8.4
 
 dev_dependencies:
   flutter_test:
