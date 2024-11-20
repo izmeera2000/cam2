@@ -3,16 +3,55 @@ import 'package:pusher_channels_flutter/pusher_channels_flutter.dart'; // Import
 import 'notificationpage.dart';
 import 'devicespage.dart';
 import 'homepage.dart';
- 
 import 'package:shared_preferences/shared_preferences.dart';
- void main() async {
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'; // Import Flutter Local Notifications
+import 'package:permission_handler/permission_handler.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize SharedPreferences to store notifications
+
+  // Initialize SharedPreferences and Flutter Local Notifications
   SharedPreferences prefs = await SharedPreferences.getInstance();
+  await requestNotificationPermission();
   await onConnectPressed(prefs);
 
+  // Initialize Local Notifications
+  await initializeNotifications();
+
   runApp(MyApp());
+}
+
+// Global instance of FlutterLocalNotificationsPlugin
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+// Initialize Flutter Local Notifications
+Future<void> initializeNotifications() async {
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/launcher_icon');
+
+  final InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+  );
+
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+}
+
+// Request notification permissions for both Android and iOS
+Future<void> requestNotificationPermission() async {
+  // For Android 13 and above, request permissions
+  if (await Permission.notification.isGranted) {
+    print("Notification permission already granted for Android");
+  } else {
+    // Request permission
+    PermissionStatus status = await Permission.notification.request();
+    if (status.isGranted) {
+      print("Notification permission granted for Android");
+    } else {
+      print("Notification permission denied for Android");
+    }
+  }
+ 
 }
 
 class MyApp extends StatelessWidget {
@@ -94,6 +133,8 @@ Future<void> onConnectPressed(SharedPreferences prefs) async {
         print("onEvent: $event");
         // Store notifications in SharedPreferences
         storeNotification(event, prefs);
+        // Trigger a local notification when an event is received
+        triggerLocalNotification(event.data.toString());
       },
       onSubscriptionError: (message, e) {
         print("onSubscriptionError: $message Exception: $e");
@@ -108,7 +149,8 @@ Future<void> onConnectPressed(SharedPreferences prefs) async {
         print("onMemberRemoved: $channelName user: $member");
       },
       onSubscriptionCount: (channelName, subscriptionCount) {
-        print("onSubscriptionCount: $channelName subscriptionCount: $subscriptionCount");
+        print(
+            "onSubscriptionCount: $channelName subscriptionCount: $subscriptionCount");
       },
     );
     await pusher.subscribe(channelName: "test");
@@ -122,5 +164,29 @@ void storeNotification(PusherEvent event, SharedPreferences prefs) {
   List<String> notifications = prefs.getStringList('notifications') ?? [];
   String notificationMessage = event.data.toString(); // Save event data
   notifications.add(notificationMessage);
-  prefs.setStringList('notifications', notifications); // Store the notifications list in SharedPreferences
+  prefs.setStringList('notifications',
+      notifications); // Store the notifications list in SharedPreferences
+}
+
+// Function to trigger a local notification
+Future<void> triggerLocalNotification(String message) async {
+  const AndroidNotificationDetails androidNotificationDetails =
+      AndroidNotificationDetails(
+    'channel_id',
+    'channel_name',
+    importance: Importance.high,
+    priority: Priority.high,
+    ticker: 'ticker',
+  );
+
+  const NotificationDetails notificationDetails =
+      NotificationDetails(android: androidNotificationDetails);
+
+  await flutterLocalNotificationsPlugin.show(
+    0, // Notification ID
+    'Doorbell', // Notification Title
+    message, // Notification Body
+    notificationDetails,
+    payload: 'item x', // Optional data for notification click
+  );
 }
