@@ -3,6 +3,7 @@ import 'package:pusher_channels_flutter/pusher_channels_flutter.dart'; // Import
 import 'notificationpage.dart';
 import 'devicespage.dart';
 import 'homepage.dart';
+import 'test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'; // Import Flutter Local Notifications
 import 'package:permission_handler/permission_handler.dart';
@@ -51,7 +52,6 @@ Future<void> requestNotificationPermission() async {
       print("Notification permission denied for Android");
     }
   }
- 
 }
 
 class MyApp extends StatelessWidget {
@@ -76,6 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
     HomePage(),
     const DevicesPage(),
     NotificationPage(),
+    Test(),
   ];
 
   void _onItemTapped(int index) {
@@ -92,7 +93,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: SafeArea(child: _widgetOptions[_selectedIndex]),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+          type: BottomNavigationBarType.fixed,
+         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
@@ -103,7 +105,11 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications),
-            label: 'Notification',
+            label: 'Notifications',
+          ),
+           BottomNavigationBarItem(
+            icon: Icon(Icons.accessible_rounded),
+            label: 'Test',
           ),
         ],
         currentIndex: _selectedIndex,
@@ -126,15 +132,14 @@ Future<void> onConnectPressed(SharedPreferences prefs) async {
       onError: (message, code, e) {
         print("onError: $message code: $code exception: $e");
       },
-      onSubscriptionSucceeded: (channelName, data) {
-        print("onSubscriptionSucceeded: $channelName data: $data");
-      },
       onEvent: (event) {
         print("onEvent: $event");
-        // Store notifications in SharedPreferences
-        storeNotification(event, prefs);
-        // Trigger a local notification when an event is received
-        triggerLocalNotification(event.data.toString());
+        if (event.eventName == "bell") {
+          // Store notifications in SharedPreferences
+          storeNotification(event, prefs);
+          // Trigger a local notification when an event is received
+          triggerLocalNotification(event.data.toString());
+        }
       },
       onSubscriptionError: (message, e) {
         print("onSubscriptionError: $message Exception: $e");
@@ -153,7 +158,7 @@ Future<void> onConnectPressed(SharedPreferences prefs) async {
             "onSubscriptionCount: $channelName subscriptionCount: $subscriptionCount");
       },
     );
-    await pusher.subscribe(channelName: "test");
+    await pusher.subscribe(channelName: "doorbell");
     await pusher.connect();
   } catch (e) {
     print("ERROR: $e");
